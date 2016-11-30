@@ -4,7 +4,7 @@ Official x64dbg plugin for [Binary Ninja](https://binary.ninja).
 
 ## Installation
 
-Copy `x64dbgbinja.py` to your Binary Ninja `plugins` directory.
+Clone this repository in your Binary Ninja plugin directory.
 
 ## Menu options
 

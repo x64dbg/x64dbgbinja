@@ -18,7 +18,7 @@ def get_module_name(view):
 
 def export_db(view):
     db = {}
-    module = get_module_name(view)
+    module = get_module_name(view).lower()
     base = view.start
     dbext = "dd%d" % (view.arch.default_int_size * 8)
 
@@ -52,7 +52,7 @@ def export_db(view):
 
 def import_db(view):
     db = {}
-    module = get_module_name(view)
+    module = get_module_name(view).lower()
     base = view.start
 
     file = get_open_filename_input("Import database", "*.dd%d" %
