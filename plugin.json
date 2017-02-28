@@ -1,7 +1,7 @@
 {
     "plugin": {
         "name": "x64dbgbinja",
-        "type": ["binaryview"],
+        "type": ["sync"],
         "api": "python2",
         "description": "Official x64dbg plugin for Binary Ninja.",
         "longdescription": "Official x64dbg plugin for Binary Ninja.",
