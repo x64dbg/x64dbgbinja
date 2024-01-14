@@ -2,11 +2,9 @@
 import json
 import pathlib
 
-from binaryninja.enums import SymbolType
 from binaryninja.interaction import get_save_filename_input, get_open_filename_input
 from binaryninja.plugin import PluginCommand
 from binaryninja.settings import Settings
-from binaryninja.types import Symbol
 
 s = Settings()
 s.register_group('dd', 'x64dbg Database Export')
