@@ -72,16 +72,17 @@ def import_db(bv):
 
     count = 0
     labels = db.get('labels', list())
-    for label in labels:
-        if label['module'] != module:
-            continue
-        address = int(label['address'], 16) + bv.start
-        name = label['text']
-        if symbol := bv.get_symbol_at(address):
-            if symbol.name == name:
+    with bv.bulk_modify_symbols():
+        for label in labels:
+            if label['module'] != module:
                 continue
-        bv.define_user_symbol(Symbol(SymbolType.FunctionSymbol, address, name))
-        count += 1
+            address = int(label['address'], 16) + bv.start
+            if not (func := bv.get_function_at(address)):
+                continue
+            if func.name == label['text']:
+                continue
+            func.name = label['text']
+            count += 1
     print('Label(s) imported: {}/{}'.format(count, len(labels)))
 
     count = 0
