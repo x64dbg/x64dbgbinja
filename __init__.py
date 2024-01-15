@@ -2,6 +2,7 @@
 import json
 import pathlib
 
+from binaryninja.enums import SymbolType
 from binaryninja.interaction import get_save_filename_input, get_open_filename_input
 from binaryninja.plugin import PluginCommand
 from binaryninja.settings import Settings
@@ -15,6 +16,20 @@ setting = {
     'type': 'boolean'
 }
 s.register_setting('dd.comments', json.dumps(setting))
+setting = {
+    'description': 'Overwrite LibraryFunctionSymbol name',
+    'title': 'Overwrite LibraryFunctionSymbol',
+    'default': False,
+    'type': 'boolean'
+}
+s.register_setting('dd.libfs', json.dumps(setting))
+setting = {
+    'description': 'Overwrite ImportedFunctionSymbol name',
+    'title': 'Overwrite ImportedFunctionSymbol',
+    'default': False,
+    'type': 'boolean'
+}
+s.register_setting('dd.impfs', json.dumps(setting))
 
 
 def export_db(bv):
@@ -78,6 +93,10 @@ def import_db(bv):
             if not (func := bv.get_function_at(address)):
                 continue
             if func.name == label['text']:
+                continue
+            if func.symbol.type is SymbolType.LibraryFunctionSymbol and not s.get_bool('dd.libfs'):
+                continue
+            if func.symbol.type is SymbolType.ImportedFunctionSymbol and not s.get_bool('dd.impfs'):
                 continue
             func.name = label['text']
             count += 1

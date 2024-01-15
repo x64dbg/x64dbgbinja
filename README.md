@@ -12,6 +12,8 @@ Clone this repository in your Binary Ninja plugin directory.
 
 Import comments/labels from an uncompressed x64dbg JSON database in Binary Ninja.
 
+Symbols for imported functions and or library functions can be overwritten via the "Overwrite X" entries in Settings.
+
 ### Export x64dbg database
 
 Export comments/labels to a JSON database that can be loaded by x64dbg.
