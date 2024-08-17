@@ -117,5 +117,5 @@ def import_db(bv):
     log(LogLevel.InfoLog, 'Done!')
 
 
-PluginCommand.register('Export x64dbg database', 'Export x64dbg database', export_db)
-PluginCommand.register('Import x64dbg database', 'Import x64dbg database', import_db)
+PluginCommand.register('x64dbg\\Export database', 'Export x64dbg database', export_db)
+PluginCommand.register('x64dbg\\Import database', 'Import x64dbg database', import_db)
