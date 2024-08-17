@@ -2,8 +2,9 @@
 import json
 import pathlib
 
-from binaryninja.enums import SymbolType
+from binaryninja.enums import LogLevel, SymbolType
 from binaryninja.interaction import get_save_filename_input, get_open_filename_input
+from binaryninja.log import log
 from binaryninja.plugin import PluginCommand
 from binaryninja.settings import Settings
 
@@ -41,9 +42,9 @@ def export_db(bv):
     if not (f := get_save_filename_input('Export database', dbext, f'{module.stem}.{dbext}')):
         return
     file = pathlib.Path(f)
-    print(f'Exporting database: {file}')
+    log(LogLevel.InfoLog, f'Exporting database: {file}')
 
-    print('Exporting symbols')
+    # Export symbols to x64dbg labels
     db['labels'] = [
         {
             'text': symbol.name,
@@ -53,7 +54,7 @@ def export_db(bv):
         }
         for symbol in bv.get_symbols()
     ]
-    print('Label(s) exported: {}'.format(len(db['labels'])))
+    log(LogLevel.DebugLog, 'Label(s) exported: {}'.format(len(db['labels'])))
 
     s = Settings()
     if s.get_bool('dd.comments'):
@@ -66,10 +67,10 @@ def export_db(bv):
             }
             for func in bv.functions for address in func.comments
         ]
-        print('Comment(s) exported: {}'.format(len(db['comments'])))
+        log(LogLevel.DebugLog, 'Comment(s) exported: {}'.format(len(db['comments'])))
 
     file.write_text(json.dumps(db))
-    print('Done!')
+    log(LogLevel.InfoLog, 'Done!')
 
 
 def import_db(bv):
@@ -79,7 +80,7 @@ def import_db(bv):
     if not (f := get_open_filename_input('Import database', '*.dd{}'.format(bv.arch.default_int_size * 8))):
         return
     file = pathlib.Path(f)
-    print(f'Importing database: {file}')
+    log(LogLevel.InfoLog, f'Importing database: {file}')
 
     db = json.load(file.open())
 
@@ -100,7 +101,7 @@ def import_db(bv):
                 continue
             func.name = label['text']
             count += 1
-    print('Label(s) imported: {}/{}'.format(count, len(labels)))
+    log(LogLevel.DebugLog, 'Label(s) imported: {}/{}'.format(count, len(labels)))
 
     count = 0
     comments = db.get('comments', list())
@@ -111,9 +112,9 @@ def import_db(bv):
         for func in bv.get_functions_containing(address):
             func.set_comment_at(address, comment['text'])
         count += 1
-    print('Comment(s) imported: {}/{}'.format(count, len(comments)))
+    log(LogLevel.DebugLog, 'Comment(s) imported: {}/{}'.format(count, len(comments)))
 
-    print('Done!')
+    log(LogLevel.InfoLog, 'Done!')
 
 
 PluginCommand.register('Export x64dbg database', 'Export x64dbg database', export_db)
