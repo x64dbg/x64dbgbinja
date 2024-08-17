@@ -4,17 +4,17 @@ Official x64dbg plugin for [Binary Ninja](https://binary.ninja).
 
 ## Installation
 
-Clone this repository in your Binary Ninja plugin directory.
+From the Plugins Menu, select "Manage Plugins". Search for "x64dbgbinja" and click the "Install" button.
 
 ## Menu options
 
-### Import x64dbg database
+### Import database
 
 Import comments/labels from an uncompressed x64dbg JSON database in Binary Ninja.
 
 Symbols for imported functions and or library functions can be overwritten via the "Overwrite X" entries in Settings.
 
-### Export x64dbg database
+### Export database
 
 Export comments/labels to a JSON database that can be loaded by x64dbg.
 
