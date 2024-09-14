@@ -37,7 +37,13 @@ def export_db(bv):
     """Export symbols and optionally comments from Binary Ninja to an x64dbg database."""
     db = dict()
     module = pathlib.Path(bv.file.original_filename)
-    dbext = 'dd{}'.format(bv.arch.default_int_size * 8)
+    dbext = None
+    if bv.arch.name.endswith("x86_64"):
+        dbext = 'dd64'
+    elif bv.arch.name.endswith("x86"):
+        dbext = 'dd32'
+    else:
+        raise Exception("Unsupported architecture")
 
     if not (f := get_save_filename_input('Export database', dbext, f'{module.stem}.{dbext}')):
         return
