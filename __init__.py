@@ -117,5 +117,10 @@ def import_db(bv):
     log(LogLevel.InfoLog, 'Done!')
 
 
-PluginCommand.register('x64dbg\\Export database', 'Export x64dbg database', export_db)
-PluginCommand.register('x64dbg\\Import database', 'Import x64dbg database', import_db)
+def is_valid(bv):
+    """Determine if this is the correct arch."""
+    return 'x86' in bv.arch.name
+
+
+PluginCommand.register('x64dbg\\Export database', 'Export x64dbg database', export_db, is_valid)
+PluginCommand.register('x64dbg\\Import database', 'Import x64dbg database', import_db, is_valid)
