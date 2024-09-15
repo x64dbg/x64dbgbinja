@@ -37,7 +37,7 @@ def export_db(bv):
     """Export symbols and optionally comments from Binary Ninja to an x64dbg database."""
     db = dict()
     module = pathlib.Path(bv.file.original_filename)
-    dbext = 'dd{}'.format(bv.arch.default_int_size * 8)
+    dbext = 'dd{}'.format(bv.arch.address_size * 8)
 
     if not (f := get_save_filename_input('Export database', dbext, f'{module.stem}.{dbext}')):
         return
