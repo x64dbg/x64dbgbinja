@@ -40,7 +40,7 @@ def export_db(bv):
     outpath = bv.file.database.globals.get('x64dbg_db_save_path', pathlib.Path(bv.file.filename).parent)
     dbext = 'dd{}'.format(bv.arch.address_size * 8)
 
-    if not (f := get_save_filename_input('Export database', dbext, f'{outpath}/{module.stem}.{dbext}')):
+    if not (f := get_save_filename_input('Export database', f'*.{dbext}', f'{outpath}/{module.stem}.{dbext}')):
         return
     file = pathlib.Path(f)
     log(LogLevel.InfoLog, f'Exporting database: {file}')
