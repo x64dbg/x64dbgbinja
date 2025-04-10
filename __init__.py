@@ -123,6 +123,8 @@ def import_db(bv):
 
 def is_valid(bv):
     """Determine if this is the correct arch."""
+    if not bv.file.database:
+        return False
     if bv.arch:
         return 'x86' in bv.arch.name
     else:
