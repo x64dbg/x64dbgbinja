@@ -121,7 +121,10 @@ def import_db(bv):
 
 def is_valid(bv):
     """Determine if this is the correct arch."""
-    return 'x86' in bv.arch.name
+    if bv.arch:
+        return 'x86' in bv.arch.name
+    else:
+        return False
 
 
 PluginCommand.register('x64dbg\\Export database', 'Export x64dbg database', export_db, is_valid)
