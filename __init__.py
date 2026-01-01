@@ -3,7 +3,7 @@ import json
 import pathlib
 
 from binaryninja.enums import SymbolType
-from binaryninja.interaction import get_save_filename_input, get_open_filename_input
+from binaryninja.interaction import get_save_filename_input, get_open_filename_input, get_text_line_input
 from binaryninja.log import Logger
 from binaryninja.plugin import PluginCommand
 from binaryninja.settings import Settings
@@ -35,10 +35,56 @@ setting = {
 s.register_setting('dd.impfs', json.dumps(setting))
 
 
+def get_module_name(bv):
+    """Retrieve module name from metadata, project file, original filename, or user input."""
+    if module_name := bv.metadata.get('x64dbgbinja.module_name'):
+        logger.log_debug(f'Module name retrieved from metadata: {module_name}')
+        return pathlib.Path(module_name)
+
+    if original_filename := bv.file.original_filename:
+        if p := bv.project:
+            if project_file := p.get_file_by_path_on_disk(original_filename):
+                module_name = project_file.name
+                logger.log_debug(f'Module name from original project file: {module_name}')
+            else:
+                logger.log_warn('Original project file not found')
+        else:
+            module_name = pathlib.Path(original_filename).name
+            logger.log_debug(f'Module name from original filename: {module_name}')
+    else:
+        logger.log_warn('Original filename not found')
+
+    if not module_name:
+        module_name = get_text_line_input('Module Name Not Found', 'Please enter a module name:')
+        logger.log_debug(f'Module name from user input: {module_name}')
+
+    bv.store_metadata('x64dbgbinja.module_name', module_name)
+    logger.log_info(f'Using module name: {module_name}')
+
+    return pathlib.Path(module_name)
+
+
+def set_module_name(bv):
+    """Set the module name to use in x64dbg database manually."""
+    module_name = get_text_line_input('Module Name Not Found', 'Please enter a module name:')
+    bv.store_metadata('x64dbgbinja.module_name', module_name)
+    logger.log_info(f'Set module name: {module_name}')
+
+
+def delete_module_name(bv):
+    """Delete the stored module name."""
+    try:
+        bv.remove_metadata('x64dbgbinja.module_name')
+    except AttributeError:
+        logger.log_warn('Stored module name not found')
+    else:
+        logger.log_info('Stored module name removed')
+
+
 def export_db(bv):
     """Export symbols and optionally comments from Binary Ninja to an x64dbg database."""
     db = dict()
-    module = pathlib.Path(get_filename(bv))
+    module = get_module_name(bv)
     outpath = bv.file.database.globals.get('x64dbg_db_save_path', pathlib.Path(bv.file.filename).parent)
     dbext = 'dd{}'.format(bv.arch.address_size * 8)
 
@@ -79,7 +125,7 @@ def export_db(bv):
 
 def import_db(bv):
     """Import x64dbg database to Binary Ninja."""
-    module = pathlib.Path(get_filename(bv)).name.lower()
+    module = pathlib.Path(get_module_name(bv)).name.lower()
 
     if not (f := get_open_filename_input('Import database', '*.dd{}'.format(bv.arch.default_int_size * 8))):
         return
@@ -121,23 +167,6 @@ def import_db(bv):
     logger.log_info('Done!')
 
 
-def get_filename(bv):
-    """Returns the original filename for the current view."""
-    if bv.project is not None:
-        return get_filename_for_project_file(bv, bv.file.original_filename)
-
-    return bv.file.original_filename
-
-
-def get_filename_for_project_file(bv, project_file_name):
-    """Returns the original filename of a project file"""
-    for file in bv.project.files:
-        if file.path_on_disk == project_file_name:
-            return file.name
-
-    return None
-
-
 def is_valid(bv):
     """Determine if this is the correct arch."""
     if not bv.file.database:
@@ -148,5 +177,7 @@ def is_valid(bv):
         return False
 
 
+PluginCommand.register('x64dbg\\Utilities\\Set Module Name', 'Set stored module name', set_module_name, is_valid)
+PluginCommand.register('x64dbg\\Utilities\\Delete Module Name', 'Delete stored module name', delete_module_name, is_valid)
 PluginCommand.register('x64dbg\\Export database', 'Export x64dbg database', export_db, is_valid)
 PluginCommand.register('x64dbg\\Import database', 'Import x64dbg database', import_db, is_valid)
